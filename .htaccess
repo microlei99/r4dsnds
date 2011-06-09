@@ -1,0 +1,17 @@
+# For security reasons, Option followsymlinks cannot be overridden.
+#Options +FollowSymLinks
+Options +SymLinksIfOwnerMatch -Indexes
+IndexIgnore */*
+RewriteEngine on
+
+#RewriteCond %{HTTP_HOST} !^www\.r4dsnds.com$ [NC]
+#RewriteRule ^(.*)$ http://www.r4dsnds.com/$1 [R=301,L]
+
+
+# if a directory or a file exists, use it directly
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond $1 !^(robots\.txt|sitemap\.xml)
+
+# otherwise forward it to index.php
+RewriteRule . index.php

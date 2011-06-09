@@ -1,0 +1,6 @@
+framework/*
+requirements/*
+assets/*
+protected/runtime/*
+nbproject/*
+*.svn
