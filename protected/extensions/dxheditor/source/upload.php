@@ -15,7 +15,7 @@
 header('Content-Type: text/html; charset=UTF-8');
 
 $inputname='filedata';//表单文件域name,一般不用改
-$attachdir= '../../media/upload/image';//上传文件保存路径，结尾不要带；
+$attachdir= '../../images/news';//上传文件保存路径，结尾不要带；
 $dirtype=2;//1:按天存入目录 2:按月存入目录 3:按扩展名存目录  建议使用按天存
 $maxattachsize=2097152;//最大上传大小，默认是2M
 $upext='txt,rar,zip,jpg,jpeg,gif,png,swf,wmv,avi,wma,mp3,mid';//上传扩展名
@@ -98,6 +98,10 @@ else
 
 			rename($upfile['tmp_name'],$target);
 			@chmod($target,0755);
+
+            //原来的target路径为图片再服务器上的绝对路径，如'../../1.jpg'，编辑器无法显示图片，现改为/images/1.jpg形式，
+            $target = str_replace('../../','/',$target);
+
 			$target=jsonString($target);
 			if($immediate=='1')$target='!'.$target;
 			if($msgtype==1)$msg="'$target'";

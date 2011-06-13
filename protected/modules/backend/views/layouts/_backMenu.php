@@ -44,8 +44,7 @@
 
     <li  class="parent level0"> <a href="#"  onclick="return false" class=""><span>CMS</span></a>
         <ul >
-            <!--<li  class="level1"> <a href="/backend/article" class=""><span>文章列表</span></a></li>
-            <li  class="level1"> <a href="/backend/articleCategory" class=""><span>文章分类</span></a></li>-->
+            <li  class="level1"> <a href="/backend/news" class=""><span>新闻列表</span></a></li>
         </ul>
     </li>
 
