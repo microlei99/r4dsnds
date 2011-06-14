@@ -173,9 +173,23 @@ class News extends CActiveRecord
     {
         $cache = new CFileCache();
         $cache->init();
-        $cache->cachePath = 'protected/runtime/cache/news/'.date('Ym');
+        $cache->cachePath = 'protected/runtime/cache/news/';
         $cache->cacheFileSuffix = Yii::app()->params['urlSuffix'];
         $cache->set(md5($this->news_url), $this->news_content);
+    }
+
+    public function getNewsUrl($url)
+    {
+        return '/news/'.$url.Yii::app()->params['urlSuffix'];
+    }
+
+    public static function getNewsByCategory($categoryIDS)
+    {
+        $sql = 'SELECT t1.news_title,t1.news_url,t1.news_updateat FROM {{news}} AS t1,{{news_category}} AS t2
+                       WHERE t1.news_id=t2.news_id AND t2.news_category_id IN (' . implode(',', $categoryIDS) . ')
+                       ORDER BY t1.news_updateat LIMIT 8';
+        $news = News::model()->findBySql($sql)->findAll();
+        return $news;
     }
 
     public function constructCategoryTree($categoryID=array())

@@ -102,13 +102,15 @@ class CheckoutController extends Controller
 		}
 
 		Yii::app()->cart->removeAll();
-		if($payment->payment_name=='paypal')
-		{
+		if($payment->payment_name=='paypal'){
 			$this->redirect('/payment/paypal/pay/order/'.$order->order_salt);
-            exit;
 		}
-		$this->redirect('/checkout');
-
+        elseif($payment->payment_name='realpay'){
+            $this->redirect('/payment/creditCard/pay/order/'.$order->order_salt);
+        }
+        else{
+            $this->redirect('/checkout');
+        }
 	}
 
     public function filters()

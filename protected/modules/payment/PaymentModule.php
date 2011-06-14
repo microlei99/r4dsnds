@@ -34,8 +34,7 @@ class PaymentModule extends CWebModule
             // you may place customized code here
 
             //var_dump($this->module);exit;
-            $this->hostUrl = 'http://www.r4dsnds.com';
-
+            $this->hostUrl = 'http://117.88.220.3:81';
             return true;
         }
         else
@@ -54,6 +53,9 @@ class PaymentModule extends CWebModule
             case 'paypal':
                 $url = ($this->isTestMode() == 1) ? 'https://www.sandbox.paypal.com/cgi-bin/webscr' : 'https://www.paypal.com/cgi-bin/webscr';
                 break;
+            case 'credit card': //no test mode
+                $url = 'https://www.realypay.com/payment/index.cgi';
+                break;
             default:
                 $url = ($this->isTestMode() == 1) ? 'https://www.sandbox.paypal.com/cgi-bin/webscr' : 'https://www.paypal.com/cgi-bin/webscr';
         }
@@ -67,6 +69,8 @@ class PaymentModule extends CWebModule
             case 'paypal':
                 $server = ($this->isTestMode() == 1) ? 'www.sandbox.paypal.com' : 'www.paypal.com';
                 break;
+            case 'credit card':
+                $server = 'www.realypay.com';
             default:
                 $server = ($this->isTestMode() == 1) ? 'www.sandbox.paypal.com' : 'www.paypal.com';
         }

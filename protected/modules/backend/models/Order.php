@@ -37,6 +37,7 @@ class Order extends CActiveRecord
 	const Canceled=7;
     const Pending = 8;
     const PreparationProgress = 9;
+    const Fraud = 10;
 
     public $customer_name;
     public $customer_email;

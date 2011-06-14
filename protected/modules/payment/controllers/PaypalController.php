@@ -186,7 +186,7 @@ class PaypalController extends PayController
     private function _load_model()
     {
         $model = null;
-        if (isset($_GET['order']))
+        if (isset($_GET['order']) && strlen($_GET['order'])==32)
         {
             $model = Order::model()->find(array(
                     'condition' => 'order_salt=:salt AND customer_id=:uid',

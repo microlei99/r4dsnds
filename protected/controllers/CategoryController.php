@@ -31,20 +31,22 @@ class CategoryController extends Controller
                 'condition' => 'product_active=1',
             ));
         $criteria->addInCondition('product_category_id', $categoryIDS);
-
-
         $count = Product::model()->count($criteria);
         $pages = new CPagination($count);
         $pages->pageSize = 16;
         $criteria->order = 'product_last_update DESC';
         $pages->applyLimit($criteria);
-
         $data = Product::model()->findAll($criteria);
+
+        /*news*/
+        $news = News::getNewsByCategory($categoryIDS);
+
         $this->_seo($model->seo->attributes);
         $this->render('view', array(
             'model' => $model,
             'data' => $data,
             'pages' => $pages,
+            'news'=>$news,
             'currency' => Currency::getCurrency(),
         ));
     }

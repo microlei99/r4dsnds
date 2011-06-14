@@ -156,4 +156,18 @@
         ));
             ?>
     </div>
+
+
+    <div class="info-in">
+        <div class="info-box info-box2">
+            <div class="info-box-title"><h3>Relate News</h3></div>
+            <div class="info-box-list">
+                <ul>
+                <?php for($i=0;$i<10;$i++):?>
+                    <li><dl><dd class="d2"><a href="">Ready for the New Version of Test2Exam </a></dd><dd><span>2009-12-12</span></dd></dl></li>
+                <?php endfor; ?>
+                </ul>
+            </div>
+        </div>
+    </div>
 </div>
