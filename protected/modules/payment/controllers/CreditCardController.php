@@ -102,9 +102,9 @@ class CreditCardController extends PayController
 
     public function actionPaymentValidate()
     {
-        $this->_set_creditcard();
         if(Yii::app()->getRequest()->isPostRequest)
         {
+			$this->_set_creditcard();
             if(($verifiedCode=$this->_validate()) || $verifiedCode==='0')
             {//when in test mode,it's return 0 not the 'test'
                 $order = Order::model()->findByAttributes(array(
