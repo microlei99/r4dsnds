@@ -3,12 +3,14 @@
 class CreditCardController extends PayController
 {
     public $postReturnField = array();
-    
+
     public function filters()
     {
-        
+        return array(
+            'accessControl - paymentValidate',
+        );
     }
-    
+
     public function actionIndex()
     {
         throw new CHttpException(404,"The requested page does not exist!");
@@ -71,7 +73,7 @@ class CreditCardController extends PayController
             /*payment detail return url*/
             $this->module->addField('returnUrl',$this->module->hostUrl.'/payment/creditCard/paymentValidate');
             /*verifyCode,this code can verify the data which post to the payment gateway is changed*/
-            $verifyCode = md5($realypay['realypay_siteid'].(Order::getPrefix().$order->invoice_id).number_format($order->order_grandtotal,2).$this->_decryptKey($realypay['realypay_key']));
+            $verifyCode = md5($realypay['realypay_siteid'].(Order::getPrefix().$order->invoice_id).number_format($order->order_grandtotal,2).decryptKey($realypay['realypay_key']));
             $this->module->addField('verifyCode',$verifyCode);
             $this->module->logPayment(true,'PAYBEFORE',$this->module->getPaymentData());
             /*insert into realypay talbe*/
@@ -95,14 +97,7 @@ class CreditCardController extends PayController
         else{
              throw new CHttpException(404, 'The requested page does not exist.');
         }
-        
-    }
 
-    public function actionTest()
-    {
-        Yii::app()->db->createCommand("truncate table `syo_order`")->execute();
-        Yii::app()->db->createCommand("truncate table `syo_order_item`")->execute();
-        Yii::app()->db->createCommand("truncate table `syo_realypay`")->execute();
     }
 
     public function actionPaymentValidate()
@@ -138,12 +133,12 @@ class CreditCardController extends PayController
                     else if ($verifiedCode == 'error' || $verifiedCode == 'declined' || $verifiedCode == 'chargeback'){
                         $order->order_status = Order::PaymentError;
                     }
-                    else if ($verifiedCode == '0'){//when in test mode,it's return 0 not the 'test'
-                        $order->order_status = Order::Canceled;
+                    else if ($verifiedCode == '0'){//风险卡交易
+                        $order->order_status = Order::Risk;
                     }
                     $order->order_payment_at = new CDbExpression("NOW()");
                     $order->save(false, array('order_status', 'order_valid', 'order_payment_at'));
-                    if ($order->order_status == Order::PaymentAccepted){
+                    if ($order->order_status == Order::PaymentAccepted || $order->order_status==Order::Risk){
                         $order->paymentSuccess();
                     }
                 }
@@ -159,6 +154,7 @@ class CreditCardController extends PayController
      */
     private function _validate()
     {
+		$error = true;
         //$postReturnField = array('siteid','order_sn','total','verifyCode','verified','transactionid');
         if(is_array($_POST) && !empty($_POST) && isset($_POST['siteid'],$_POST['order_sn'],$_POST['total'],$_POST['verifyCode'],$_POST['verified'],$_POST['transactionid']))
         {
@@ -186,20 +182,19 @@ class CreditCardController extends PayController
                                 ':status' => $this->postReturnField['verified'],
                                 ':pid' => $realypayInfo['realypay_id']
                             ));
+                            $error = false;
                             $this->module->logPayment(true, 'PAYAFTER', $this->postReturnField);
                         }
                     }
                     else
                     {
-                        $error = true;
                         $this->module->errorMessage = 'return siteid or total money is incorrect';
                         $this->module->logPayment(false);
                     }
                 }
                 else
                 {
-                    $error = true;
-                    $this->module->errorMessage = 'post return message from realypay is invalid ' . $key;
+                    $this->module->errorMessage = 'post return message from realypay is invalid';
                     $this->module->logPayment(false);
                 }
             //}
@@ -212,15 +207,6 @@ class CreditCardController extends PayController
         $this->module->setPaymentGateway('credit card');
         $this->module->enableLog();
         $this->module->logFile = 'protected/runtime/realypay.results.log';
-    }
-
-    private function _decryptKey($key)
-    {
-        $decryptKey = '';
-        for($i=0,$len=strlen($key);$i<$len;$i++){
-            $decryptKey .= chr(ord($key{$i})+4);
-        }
-        return $decryptKey;
     }
 
     private function _load_model()

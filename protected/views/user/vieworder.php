@@ -66,7 +66,14 @@
         </ul>
     <div class="sunmm_box" style="width:250px; float: right;">
         <h3>Payment Status</h3>
-                <p><?php echo Lookup::item('payment_status', $model->order_status);?></p>
+                <p><?php
+				if($model->order_status==Order::Risk){
+				    $model->order_status = Order::PaymentAccepted;
+				}
+				echo Lookup::item('payment_status', $model->order_status);
+
+				?>
+				</p>
                     <h3>Shipment Method</h3>
                     <p><?php echo $model->carrier->carrier_name;?> </p>
                     <p>Tracking Number:<span style="color:#DD2A81"><?php echo $ship->ship_code;?></span></p> 

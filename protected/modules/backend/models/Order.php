@@ -28,6 +28,7 @@
  */
 class Order extends CActiveRecord
 {
+    /*Lookup表*/
     const AwaitingPayment=1;
     const PaymentAccepted=2;
     const Shipped=3;
@@ -38,6 +39,7 @@ class Order extends CActiveRecord
     const Pending = 8;
     const PreparationProgress = 9;
     const Fraud = 10;
+    const Risk = 21;
 
     public $customer_name;
     public $customer_email;

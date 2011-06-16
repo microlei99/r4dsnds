@@ -49,4 +49,36 @@ class PaymentController extends BackendController
 
         $this->render('paypal',array('model'=>$model));
     }
+
+    public function actionCreditCard()
+    {
+        $this->htmlOption = array(
+            'class' => 'icon-head head-products', 'header' => "信用卡设置",
+            'button' => array(
+                array(
+                    'class' => 'scalable save',
+                    'header'=>'保存',
+                    'click' => "$('#creditcard_form').submit()",
+                ),
+            ));
+
+        
+
+        if(isset($_POST['realypay']))
+        {
+            if($_POST['realypay']['realypay_siteid'] && $_POST['realypay']['realypay_key'])
+            {
+                $_POST['realypay']['realypay_key'] = encryptKey($_POST['realypay']['realypay_key']);
+                $req = Yii::app()->db->createCommand("UPDATE {{config}} SET config_code=:code WHERE config_item=:item AND config_type='credit card'");
+                foreach($_POST['realypay'] as $key =>$value){
+                    $req->execute(array(':item'=>$key,':code'=>$value));
+                }
+                Yii::app()->user->setFlash('column1_message','设置成功');
+            }
+        }
+
+        $realypay = Config::items('credit card');
+        $realypay['realypay_key'] = decryptKey($realypay['realypay_key']);
+        $this->render('creditcard',array('realypay'=>$realypay));
+    }
 }

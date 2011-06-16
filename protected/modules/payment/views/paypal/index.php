@@ -10,7 +10,5 @@
 <input type="submit" value="Click Here" style="color: #000;"></p>
 </form>
 <script type="text/javascript">
-    $(document).ready(function() {
-        $('#paypal_form').submit();
-    });
+    document.body.onload=document.forms.paypal_form.submit();
 </script>

@@ -105,7 +105,7 @@ class CheckoutController extends Controller
 		if($payment->payment_name=='paypal'){
 			$this->redirect('/payment/paypal/pay/order/'.$order->order_salt);
 		}
-        elseif($payment->payment_name='realpay'){
+        elseif($payment->payment_name=='credit card'){
             $this->redirect('/payment/creditCard/pay/order/'.$order->order_salt);
         }
         else{

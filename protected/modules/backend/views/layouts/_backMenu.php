@@ -61,6 +61,7 @@
             <li class="parent level1"> <a href="#"   class=""><span>支付模块</span></a>
                 <ul>
 					<li class="level2"><a href="/backend/payment/paypal" class=""><span>Paypal设置</span></a></li>
+                    <li class="level2"><a href="/backend/payment/creditCard" class=""><span>信用卡设置</span></a></li>
                 </ul>
             </li>
             <li  class="level1"> <a href="/backend/msg/alert"   class=""><span>通知信息</span></a></li>

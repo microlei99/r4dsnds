@@ -16,10 +16,10 @@
                             <tr>
                                 <td width="28%" style="padding:18px 36px;" >
                                     <label>
-                                        <input type="radio" value="1" class="inputnone" name="payment" checked="checked" style="vertical-align:middle;" />
-                                        <img align="absmiddle" alt="PayPal" src="/images/card_1.gif"  />
+                                        <input type="radio" value="2" class="inputnone" name="payment" checked="checked" style="vertical-align:middle;" />
+                                        <img align="absmiddle" alt="Credit Card" src="/images/CreditCardLogos.jpg"  />
                                         <span style="display:inline-block; width:600px; padding-left:30px; vertical-align:middle">
-                                            Choose this option to pay for your order using your PayPal account.
+                                            Choose this option to pay for your order using credit card.
                                         </span>
                                     </label>
                                 </td>
@@ -27,10 +27,10 @@
                             <tr>
                                 <td width="28%" style="padding:18px 36px;" >
                                     <label>
-                                        <input type="radio" value="2" class="inputnone" name="payment" style="vertical-align:middle;" />
-                                        <img align="absmiddle" alt="Credit Card" src="/images/CreditCardLogos.jpg"  />
-                                        <span style="display:inline-block; width:545px; padding-left:30px; vertical-align:middle">
-                                            Choose this option to pay for your order using credit card.
+                                        <input type="radio" value="1" class="inputnone" name="payment" style="vertical-align:middle;" />
+                                        <img align="absmiddle" alt="PayPal" src="/images/card_1.gif"  />
+                                        <span style="display:inline-block; width:550px; padding-left:80px; vertical-align:middle">
+                                            Choose this option to pay for your order using your PayPal account.
                                         </span>
                                     </label>
                                 </td>

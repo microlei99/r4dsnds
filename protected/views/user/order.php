@@ -15,6 +15,11 @@
             <tr>
                 <td><a href="/user/viewOrder/salt/<?php echo $order->order_salt; ?>"><?php echo Order::getPrefix().$order->invoice_id;?></a></td>
                 <td><span class="gray"><?php echo date('Y/n/j',strtotime($order->order_create_at));?></span></td>
+                <?php
+                if($order->order_status==Order::Risk){
+				    $order->order_status = Order::PaymentAccepted;
+				}
+                ?>
                 <td><span class="green"><?php echo Lookup::item('payment_status', $order->order_status);?></span></td>
                 <td><span class="orange"><?php echo Currency::getCurrencySymbol($order->order_currency_id) . $order->order_grandtotal; ?></span></td>
                 <td>

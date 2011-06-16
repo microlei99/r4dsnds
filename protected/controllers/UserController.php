@@ -78,7 +78,7 @@ class UserController extends Controller {
             }
         }
 
-        $this->render('newAddress', array(
+        $this->render('newaddress', array(
             'address' => $newAddress,
             'title' => 'Add New Address',
         ));
@@ -122,7 +122,7 @@ class UserController extends Controller {
             }
         }
 
-        $this->render('newAddress', array(
+        $this->render('newaddress', array(
             'address' => $model,
             'title' => 'Edit Address',
         ));

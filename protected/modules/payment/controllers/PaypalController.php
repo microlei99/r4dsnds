@@ -8,7 +8,9 @@ class PaypalController extends PayController
 
     public function filters()
     {
-        
+        return array(
+            'accessControl - ipnValidate',
+        );
     }
 
     public function actionIndex()
@@ -51,7 +53,6 @@ class PaypalController extends PayController
         $this->module->addField('rm', 1);
 
         $this->module->logPayment(true, 'PAYBEFORE', $this->module->getPaymentData());
-        Yii::app()->clientScript->registerCoreScript('jquery');
         $this->render('index', array('data' => $this->module->getPaymentData()));
     }
 

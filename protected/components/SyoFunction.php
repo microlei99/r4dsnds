@@ -49,4 +49,22 @@ function getCurrencySymbol($code=false)
     }
     return $symbol;
 }
+
+function encryptKey($key)
+{
+    $encryptKey = '';
+    for ($i = 0, $len = strlen($key); $i < $len; $i++){
+        $encryptKey .= chr(ord($key{$i}) - 4);
+    }
+    return $encryptKey;
+}
+
+function decryptKey($key)
+{
+    $decryptKey = '';
+    for ($i = 0, $len = strlen($key); $i < $len; $i++){
+        $decryptKey .= chr(ord($key{$i}) + 4);
+    }
+    return $decryptKey;
+}
 ?>

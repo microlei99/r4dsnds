@@ -52,7 +52,7 @@ class OrderController extends BackendController
                 $model->order_export = 0;
             }
 
-            $model->save(false);
+            $model->save();
 
             if (!$history = OrderHistory::model()->findByAttributes(array('history_order_id' => $model->order_id)))
             {
