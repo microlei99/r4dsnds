@@ -138,7 +138,10 @@ class ProductCategory extends CActiveRecord
         if($this->isNewRecord)
         {
             $this->category_path = $this->category_path.','.$this->category_id;
-            $this->updateByPk($this->category_id,array('category_path'=>$this->category_path,'category_order'=>$this->category_order));
+            $this->updateByPk($this->category_id,array(
+                'category_path'=>$this->category_path,
+                'category_order'=>$this->category_order
+            ));
         }
 
         $cache = Config::model()->findByAttributes(array('config_type'=>'cache','config_item'=>'index_category_cache'));
@@ -147,6 +150,8 @@ class ProductCategory extends CActiveRecord
             $cache->config_code = md5(microtime(true));
             $cache->save();
         }
+
+        $this->cacheNewsCategory();
     }
 
     public function scopes()
@@ -266,13 +271,38 @@ class ProductCategory extends CActiveRecord
             foreach($category as $key)
             {
                 $children = $this->_get_child_list($key);
-                foreach($children as $i=>$j)
-                {
+                foreach($children as $i=>$j){
                     $cate[$i] = $j;
                 }
             }
         }
         return isset($cate) ? $cate : array();
+    }
+
+    public function cacheNewsCategory()
+    {
+        $filename = Yii::app()->params['newscategoryPath'];
+        if (!is_file($filename))
+        {
+            /* 初始化全部分类 */
+            $initNewsCategoryIDS = array();
+            $data = Yii::app()->db->createCommand('SELECT category_id FROM {{product_category}}')->queryAll();
+            foreach ($data as $key)
+             {
+                $initNewsCategoryIDS[$key['category_id']]['newsid'] = 0;
+                $initNewsCategoryIDS[$key['category_id']]['cached'] = false;
+            }
+            file_put_contents($filename, "<?php\nreturn " . var_export($initNewsCategoryIDS, true) . ";\n");
+            unset($initNewsCategoryIDS);
+        }
+
+        $cachedNewsCategoryIDS = require($filename);
+        if(!array_key_exists($this->category_id, $cachedNewsCategoryIDS['newsid']))
+        {
+            $cachedNewsCategoryIDS[$this->category_id]['newsid'] = 0;
+            $cachedNewsCategoryIDS[$this->category_id]['cached'] = false;
+            file_put_contents($filename, "<?php\nreturn " . var_export($cachedNewsCategoryIDS, true) . ";\n");
+        }
     }
 
    private function _get_child_list($categoryObj,&$children=array())

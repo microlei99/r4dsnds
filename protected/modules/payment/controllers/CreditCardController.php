@@ -112,7 +112,7 @@ class CreditCardController extends PayController
                 ));
                 if ($order)
                 {
-                    if ($verifiedCode == 'approved'){//payment success
+                    if ($verifiedCode == 'approved' || $verifiedCode=='0'){//payment success
                         $order->order_status = Order::PaymentAccepted;
                     }
                     else if ($verifiedCode == 'refund'){
@@ -133,9 +133,9 @@ class CreditCardController extends PayController
                     else if ($verifiedCode == 'error' || $verifiedCode == 'declined' || $verifiedCode == 'chargeback'){
                         $order->order_status = Order::PaymentError;
                     }
-                    else if ($verifiedCode == '0'){//风险卡交易
-                        $order->order_status = Order::Risk;
-                    }
+                    //else if ($verifiedCode == '0'){//风险卡交易
+                        //$order->order_status = Order::Risk;
+                    //}
                     $order->order_payment_at = new CDbExpression("NOW()");
                     $order->save(false, array('order_status', 'order_valid', 'order_payment_at'));
                     if ($order->order_status == Order::PaymentAccepted || $order->order_status==Order::Risk){

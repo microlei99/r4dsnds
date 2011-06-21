@@ -2,35 +2,65 @@
 
 class NewsController extends Controller
 {
-	public function actionIndex()
-	{
-		$this->render('index');
-	}
+    /*public function filters()
+    {
+        return array(
+            array(
+                'COutputCache',
+                'cacheID'=>'newscache',
+                'varyByParam'=>array(
+                    'url'
+                ),
+                'dependency' => array(
+                    'class' => 'CDbCacheDependency',
+                    'sql' => 'SELECT news_updateat FROM {{news}} WHERE news_url=:url',
+                )
+            )
+        );
+    }*/
 
-	// Uncomment the following methods and override them if needed
-	/*
-	public function filters()
-	{
-		// return the filter configuration for this controller, e.g.:
-		return array(
-			'inlineFilterName',
-			array(
-				'class'=>'path.to.FilterClass',
-				'propertyName'=>'propertyValue',
-			),
-		);
-	}
+	public function actionRead()
+    {
+        $sql = "SELECT news_id FROM {{news}} WHERE news_url=:url";
+        $id = Yii::app()->db->createCommand($sql)->bindValue(':url',$_GET['url'])->queryScalar();
+        if($id)
+        {
+            $filename = 'protected/runtime/cache/news/readtime.php';
+            if(!is_file($filename)){
+                $this->saveToFile($filename, array());
+            }
+            $newsReadtime = $this->loadFromFile($filename);
+            if(array_key_exists($id, $newsReadtime))
+            {
+                $newsReadtime[$id]++;
+                if($newsReadtime[$id]>=10)
+                {
+                    Yii::app()->db->createCommand("UPDATE {{news}} SET news_readtimes=:n")->execute(array(':n'=>$newsReadtime[$id]));
+                    $newsReadtime[$id] = 0;
+                }
+            }
+            else{
+                $newsReadtime[$id] = 1;
+            }
+            $this->saveToFile($filename, $newsReadtime);
+            $this->render('index',array('id'=>$id));
+        }
+        else{
+            throw new CHttpException(404, "The requested page does not exist!");
+        }
+        
+    }
 
-	public function actions()
+    protected function loadFromFile($file)
 	{
-		// return external action classes, e.g.:
-		return array(
-			'action1'=>'path.to.ActionClass',
-			'action2'=>array(
-				'class'=>'path.to.AnotherActionClass',
-				'propertyName'=>'propertyValue',
-			),
-		);
+		if(is_file($file))
+			return require($file);
+		else
+			return array();
 	}
-	*/
+    
+    protected function saveToFile($file,$data)
+    {
+        file_put_contents($file,"<?php\nreturn ".var_export($data,true).";\n");
+    }
 }

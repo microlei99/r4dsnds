@@ -43,25 +43,17 @@
         </div><!-- end pagenavi -->
         <div class="clear"></div>
     </div>
-    
-    <div class="info-in">
-        <div class="info-box info-box2">
-            <div class="info-box-title"><h3>Relate News</h3></div>
-            <div class="info-box-list">
-                <ul>
-                <?php
-                 
-                foreach($news as $row):
-                ?>
-                    <li>
-                        <dl>
-                            <dd class="d2"><a href="<?php echo $row->getNewsUrl($row->news_url);?>"><?php echo $row->news_title;?></a></dd>
-                            <dd><span><?php echo $row->news_updateat;?></span></dd>
-                        </dl>
-                    </li>
-                <?php endforeach; ?>
-                </ul>
-            </div>
-        </div>
-    </div>
+
+    <?php
+      if(!News::checkNewsCategoryIsCached($model->category_id))
+      {
+          $data=$this->renderPartial('//widget/_categorynews', array(
+                    'categoryIDS' => $categoryIDS,
+                ),true);
+          Yii::app()->newscache->set($model->category_id,$data);
+          News::changeNewsCategoryCache($model->category_id);
+          unset($data);
+      }
+      echo Yii::app()->newscache->get($model->category_id);
+    ?>
 </div>

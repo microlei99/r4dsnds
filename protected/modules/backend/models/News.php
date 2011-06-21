@@ -132,7 +132,35 @@ class News extends CActiveRecord
             $this->news_readtimes = 0;
             $this->news_createat = new CDbExpression('CURRENT_DATE()');
         }
-        $this->news_updateat = new CDbExpression('CURRENT_DATE()');
+        $this->news_updateat = new CDbExpression('CURRENT_TIMESTAMP()');
+
+        /*$sql = "SELECT category_name,category_url FROM {{product_category}} ORDER BY CHAR_LENGTH(category_name) DESC,category_name ASC";
+        $data = Yii::app()->db->createCommand($sql)->queryAll();
+        $category = array();
+        foreach($data as $item){
+            $category[$item['category_name']] = $item['category_url'];
+        }
+        $rt = array();
+        $index = 0;
+        foreach ($category as $name => $url)
+        {
+            $sign = 'rt:' . $index;
+            $this->news_content = str_ireplace($name, '{{' . $sign . '}}', $this->news_content, $count);
+            if ($count > 0)
+            {
+                $index++;
+                $rt[$sign]['url'] = CHtml::Link($name, $url);
+                $rt[$sign]['name'] = $name;
+            }
+        }
+        if($rt)
+        {
+            foreach ($rt as $key => $value)
+            {
+                $this->news_content = preg_replace('/{{' . $key . '}}/i', $value['url'], $this->news_content, 1);
+                $this->news_content = preg_replace('/{{' . $key . '}}/i', $value['name'], $this->news_content);
+            }
+        }*/
         
         return true;
     }
@@ -157,11 +185,14 @@ class News extends CActiveRecord
                 $request->bindValue(':cid', $cid)->execute();
             }
         }
+
+        $this->cacheNewsCategory();
+        $this->cacheNews();
         
         /*新闻缓存*/
         //$this->attachEventHandler('onCacheNews',array($this,'cacheNews'));
         //$this->onCacheNews(new CEvent($this));
-        $this->doCacheNews();
+        //$this->doCacheNews();
     }
 
     /*protected function onCacheNews($event)
@@ -169,27 +200,167 @@ class News extends CActiveRecord
         $this->raiseEvent('onCacheNews', $event);
     }*/
 
-    public function doCacheNews()
+   /* public function doCacheNews()
     {
         $cache = new CFileCache();
         $cache->init();
         $cache->cachePath = 'protected/runtime/cache/news/';
         $cache->cacheFileSuffix = Yii::app()->params['urlSuffix'];
         $cache->set(md5($this->news_url), $this->news_content);
-    }
+    }*/
 
-    public function getNewsUrl($url)
+    public static function getNewsUrl($url)
     {
         return '/news/'.$url.Yii::app()->params['urlSuffix'];
     }
 
     public static function getNewsByCategory($categoryIDS)
     {
-        $sql = 'SELECT t1.news_title,t1.news_url,t1.news_updateat FROM {{news}} AS t1,{{news_category}} AS t2
+        $sql = 'SELECT t1.news_title,t1.news_url,t1.news_updateat,news_content FROM {{news}} AS t1,{{news_category}} AS t2
                        WHERE t1.news_id=t2.news_id AND t2.news_category_id IN (' . implode(',', $categoryIDS) . ')
                        ORDER BY t1.news_updateat LIMIT 8';
-        $news = News::model()->findBySql($sql)->findAll();
+        $news = Yii::app()->db->createCommand($sql)->queryAll();
         return $news;
+    }
+
+    public function cacheNewsCategory()
+    {
+        $filename = Yii::app()->params['newscategoryPath'];
+        if(is_file($filename))
+        {
+            $cachedNewsCategoryIDS = require($filename);
+            $newsCategory = array();
+            $data = Yii::app()->db->createCommand('SELECT * FROM {{news_category}}')->queryAll();
+            foreach($data as $row){
+                $newsCategory[$row['news_category_id']] .= $row['news_id'].',';
+            }
+            foreach($newsCategory as $key => $value){
+                $newsCategory[$key] = trim($value,',');
+            }
+
+            foreach($cachedNewsCategoryIDS as $key => $value)
+            {
+                if(array_key_exists($key,$newsCategory))
+                {
+                    if($cachedNewsCategoryIDS[$key]['newsid']!=$newsCategory[$key])
+                    {
+                        $cachedNewsCategoryIDS[$key]['newsid'] = $newsCategory[$key];
+                        $cachedNewsCategoryIDS[$key]['cached'] = false;
+
+                        /*parent category*/
+                        //$sql = 'SELECT category_id FROM {{product_category}} WHERE category_parent_id=:id';
+                        //$data = Yii::app()->db->createCommand($sql)->bindValue(':id');
+                    }
+                }
+            }
+            file_put_contents($filename, "<?php\nreturn " . var_export($cachedNewsCategoryIDS, true) . ";\n");
+        }
+    }
+
+    public function cacheNews()
+    {
+        $filename = 'protected/runtime/cache/news/news.php';
+        if(!is_file($filename))
+        {
+            $cachedNews = array();
+            $data = Yii::app()->db->createCommand('SELECT news_id FROM {{news}}')->queryAll();
+            foreach($data as $row){
+                $cachedNews[$row['news_id']] = false;
+            }
+            file_put_contents($filename, "<?php\nreturn " . var_export($cachedNews, true) . ";\n");
+        }
+
+        if(!isset($cachedNews)){
+            $cachedNews = require($filename);
+        }
+        if(array_key_exists($this->news_id,$cachedNews))
+        {
+            $cachedNews[$this->news_id] = false;
+            file_put_contents($filename, "<?php\nreturn " . var_export($cachedNews, true) . ";\n");
+        }
+
+        /*如果有一条news修改，所有对于于这条news的分类都要失效*/
+        //找到该news对应的分类
+        $newsCategory = array();
+        $sql = 'SELECT news_category_id FROM {{news_category}} WHERE news_id='.$this->news_id;
+        $data = Yii::app()->db->createCommand($sql)->queryAll();
+        foreach($data as $row){
+            $newsCategory[] = $row['news_category_id'];
+        }
+        unset($data);
+
+        $newsCachedCategory = require(is_file(Yii::app()->params['newscategoryPath']) ? Yii::app()->params['newscategoryPath']:array());
+        foreach($newsCachedCategory as $id => $row)
+        {
+            if(in_array($id,$newsCategory) && stristr($row['newsid'],strval($this->news_id))!==false){
+                $newsCachedCategory[$id]['cached'] = false;
+            }
+        }
+        file_put_contents(Yii::app()->params['newscategoryPath'], "<?php\nreturn " . var_export($newsCachedCategory, true) . ";\n");
+    }
+
+    //public function
+
+    /**
+     * the path to the cachednewscategory.php restore the category cached information.
+     * true means cached,otherwise not cached
+     * @return boolean
+     */
+    public static function checkNewsCategoryIsCached($categoryID=0)
+    {
+        $cached = false;
+        $filename = Yii::app()->params['newscategoryPath'];
+        if(is_file($filename))
+        {
+            $cachedNewsCategoryIDS = require($filename);
+            if (array_key_exists($categoryID, $cachedNewsCategoryIDS) && $cachedNewsCategoryIDS[$categoryID]['cached']){
+                $cached = true;
+            }
+        }
+        return $cached;
+    }
+
+    public static function changeNewsCategoryCache($categoryID)
+    {
+        $filename = Yii::app()->params['newscategoryPath'];
+        if(is_file($filename))
+        {
+            $cachedNewsCategoryIDS = require($filename);
+            if (array_key_exists($categoryID, $cachedNewsCategoryIDS))
+            {
+                $cachedNewsCategoryIDS[$categoryID]['cached'] = true;
+                file_put_contents($filename, "<?php\nreturn " . var_export($cachedNewsCategoryIDS, true) . ";\n");
+            }
+            
+        }
+    }
+
+    public static function checkNewsIsCached($newsID=0)
+    {
+        $cached = false;
+        $filename = 'protected/runtime/cache/news/news.php';
+        if(is_file($filename))
+        {
+            $cachedNews = require($filename);
+            if (array_key_exists($newsID, $cachedNews) && $cachedNews[$newsID]){
+                $cached = true;
+            }
+        }
+        return $cached;
+    }
+
+    public static function changeNewsCache($newsID=0)
+    {
+        $filename = 'protected/runtime/cache/news/news.php';
+        if(is_file($filename))
+        {
+            $cachedNews = require($filename);
+            if (array_key_exists($newsID, $cachedNews))
+            {
+                $cachedNews[$newsID] = true;
+                file_put_contents($filename, "<?php\nreturn " . var_export($cachedNews, true) . ";\n");
+            }
+        }
     }
 
     public function constructCategoryTree($categoryID=array())

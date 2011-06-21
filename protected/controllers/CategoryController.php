@@ -37,16 +37,14 @@ class CategoryController extends Controller
         $criteria->order = 'product_last_update DESC';
         $pages->applyLimit($criteria);
         $data = Product::model()->findAll($criteria);
-
-        /*news*/
-        $news = News::getNewsByCategory($categoryIDS);
+        
 
         $this->_seo($model->seo->attributes);
         $this->render('view', array(
             'model' => $model,
             'data' => $data,
             'pages' => $pages,
-            'news'=>$news,
+            'categoryIDS'=>$categoryIDS,
             'currency' => Currency::getCurrency(),
         ));
     }

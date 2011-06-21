@@ -39,6 +39,13 @@ return array(
             'class'=>'system.caching.CFileCache',
             'keyPrefix'=>'syo',
         ),
+
+        'newscache'=>array(
+            'class'=>'system.caching.CFileCache',
+            'cachePath'=>'protected/runtime/cache/news',
+            'directoryLevel'=>2
+        ),
+
         'urlManager' => array(
             'class' => 'ext.DbUrlManager.EDbUrlManager',
             'urlFormat' => 'path',
@@ -47,6 +54,7 @@ return array(
             'rules' => array(
 			    'wholesale'=>'site/wholesale',
                 'currency/<id:USD|GBP|EUR|CAD|AUD|CNY>' => 'site/currency/currency/<id>',
+                'news/<url:[a-zA-Z0-9\-]+>'=>array('news/read/url/<url>','urlSuffix'=>'.html','caseSensitive'=>false),
                 '<controller:\w+>/<action:\w+>' => '<controller>/<action>',
                 '<controller:\w+>/<id:\d+>' => '<controller>/view',
                 '<controller:\w+>/<action:\w+>/<id:\d+>' => '<controller>/<action>',
@@ -122,5 +130,6 @@ return array(
         'backendPath' => '/assets/default/',
         'urlSuffix' => '.html',
         'currency' => 1,
+        'newscategoryPath'=>'protected/runtime/cache/news/cachednewscategory.php',
     ),
 );

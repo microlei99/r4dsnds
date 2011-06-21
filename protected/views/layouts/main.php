@@ -8,8 +8,8 @@
         <link rel="stylesheet" href="/css/base.css" media="screen" type="text/css" />
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <meta name="robots" content="index, follow" />
-        <meta keywords="<?php echo CHtml::encode($this->keywords); ?>" />
-        <meta description="<?php echo CHtml::encode($this->description); ?>" />
+        <meta name="keywords" content="<?php echo CHtml::encode($this->keywords); ?>" />
+        <meta name="description" content="<?php echo CHtml::encode($this->description); ?>" />
          <meta name="author" content="r4dsnds.com" />
 	<meta name="robots" content="noodp,noydir" />
 	<meta name="robots" content="index, follow"/>
