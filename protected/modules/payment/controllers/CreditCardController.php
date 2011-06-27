@@ -101,9 +101,10 @@ class CreditCardController extends PayController
     }
 
     public function actionPaymentValidate()
-    {
+    {file_put_contents('a.txt', '123');
         if(Yii::app()->getRequest()->isPostRequest)
         {
+                        
 			$this->_set_creditcard();
             if(($verifiedCode=$this->_validate()) || $verifiedCode==='0')
             {//when in test mode,it's return 0 not the 'test'

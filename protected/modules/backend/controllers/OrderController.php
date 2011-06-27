@@ -77,6 +77,56 @@ class OrderController extends BackendController
         $this->render('view', array('model' => $model,'ship'=>$ship));
     }
 
+    public function actionHand()
+    {
+        $this->htmlOption = array('class' => 'icon-head head-products', 'header' => "订单处理", 'button' => array(
+                array(
+                    'class' => 'scalable add',
+                    'id' => 'hand',
+                    'header' => '处理',
+                    'click' => "$('#hand_form').submit()",
+                ),
+            ));
+        $error = true;
+        if (isset($_POST['order']) && $_POST['order'] && $order = Order::model()->findByAttributes(array('invoice_id'=>$_POST['order'])))
+        {
+            if($order->order_status==Order::AwaitingPayment)
+            {
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_HEADER, false);
+                curl_setopt($ch, CURLOPT_NOBODY, true);
+                curl_setopt($ch, CURLOPT_URL, 'http://172.16.0.179:81/payment/creditCard/paymentValidate');
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                $realypay = Config::items('credit card');
+                $decryptKey = '';
+                for ($i = 0, $len = strlen($realypay['realypay_key']); $i < $len;$i++){
+                    $decryptKey .= chr(ord($realypay['realypay_key']{$i}) + 4);
+                }
+
+                $verifyCode = md5($realypay['realypay_siteid'] . (Order::getPrefix() . $order->invoice_id) . number_format($order->order_grandtotal, 2) . $decryptKey);
+                $data = array(
+                    'siteid' => $realypay['realypay_siteid'],
+                    'order_sn' => Order::getPrefix() . $order->invoice_id,
+                    'total' => $order->order_grandtotal,
+                    'verifyCode' => $verifyCode,
+                    'transactionid' => 'aaaaaaaaaaaaa',
+                    'verified' => '0',
+                );
+
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+                if (curl_exec($ch))
+                {
+                    $error = false;
+                }
+                print_r(curl_getinfo($ch));
+                curl_close($ch);
+            }
+        }
+
+        $this->render('hand', array('error' => $error));
+    }
+
     public function actionExport()
     {
         $this->htmlOption = array('class' => 'icon-head head-products', 'header' => "导出订单");

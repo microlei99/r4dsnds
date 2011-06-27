@@ -57,7 +57,7 @@ class TradeGrid extends CGridView
         foreach($this->columns as $i=>$column)
         {
             echo "<th><span class='nobr'>";
-            
+
             if(isset($column->name))
             {
                 echo $this->createSortLink($controller,$column);
@@ -72,14 +72,14 @@ class TradeGrid extends CGridView
     {
         if(($count=$this->dataProvider->getItemCount())<=0)
             return $this->renderMassaction();
-        
+
         echo '<table class="actions" cellspacing="0"><tbody><tr><td class="pager">';
         if($this->enablePagination)
         {
             if(($summaryText=$this->summaryText)===null)
                 $summaryText=Yii::t('zii','Displaying {start}-{end} of {count} result(s).');
             $pagination=$this->dataProvider->getPagination();
-            
+
             $start=$pagination->currentPage*$pagination->pageSize+1;
             echo strtr($summaryText,array(
             '{start}'=>$start,
@@ -117,7 +117,7 @@ class TradeGrid extends CGridView
         $sorts=array();
         $htmlOptions=array();
         $directions=$column->grid->dataProvider->getSort()->getDirections();
-        
+
         if(isset($directions[$column->name]) )
         {
             $class=$directions[$column->name] ? 'desc' : 'asc';
@@ -140,11 +140,11 @@ class TradeGrid extends CGridView
             $directions=array($column->name=>$descending);
 
 
-
         foreach( $directions as $attribute=>$descending)
         {
             $sorts[]=$descending ? $attribute.$csort->separators[1].$csort->descTag : $attribute;
         }
+
 
         $params=$csort->params===null ? $_GET : $csort->params;
 
