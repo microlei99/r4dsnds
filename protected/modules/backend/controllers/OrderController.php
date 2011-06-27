@@ -8,13 +8,12 @@ class OrderController extends BackendController
 	{
 		$this->htmlOption=array('class'=>'icon-head head-products','header'=>"订单列表");
 
-        $model = new Order();
-
+        $model = new Order('search');
         if(isset($_GET['Order']))
         {
             $model->attributes = $_GET['Order'];
             $model->customer_name = $_GET['Order']['customer_name'];
-            $model->paypal_txnid = $_GET['Order']['paypal_txnid'];
+            $model->transaction_id = $_GET['Order']['transaction_id'];
             $model->customer_email = $_GET['Order']['customer_email'];
         }
 		$this->render('index',array('model'=>$model));

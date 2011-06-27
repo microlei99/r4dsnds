@@ -3,23 +3,34 @@
 class StatisticController extends BackendController
 {
 
-    public $menu_active = 2;
+    public $menu_active = 7;
     
-    public function actionIndex()
+    public function actionOrder()
     {
         $this->htmlOption = array(
             'class' => 'icon-head head-products',
-            'header' => "商品统计"
+            'header' => "订单统计",
         );
-        
-        $model = new ProductStatistic();
 
-        if (isset($_GET['ProductStatistic']))
-        {
-            $model->product_name = $_GET['ProductStatistic']['product_name'];
+        $model = new Order();
+        if(isset($_GET['Order'])){
+            $model->attributes = $_GET['Order'];
         }
+        $this->render('order',array('model'=>$model));
+    }
 
-        $this->render('index', array('model' => $model));
+    public function actionCustomerConsumption()
+    {
+        $this->htmlOption = array(
+            'class' => 'icon-head head-products',
+            'header' => "客户消费统计",
+        );
+
+        $model = new Customer('consumption');
+        if(isset($_GET['Customer'])){
+            $model->attributes = $_GET['Customer'];
+        }
+        $this->render('customer',array('model'=>$model));
     }
 
     public function actionProduct()

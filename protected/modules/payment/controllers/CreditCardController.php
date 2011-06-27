@@ -101,7 +101,7 @@ class CreditCardController extends PayController
     }
 
     public function actionPaymentValidate()
-    {file_put_contents('a.txt', '123');
+    {
         if(Yii::app()->getRequest()->isPostRequest)
         {
                         

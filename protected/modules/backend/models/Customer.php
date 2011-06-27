@@ -21,6 +21,7 @@
  */
 class Customer extends CActiveRecord
 {
+    public $customerConsumption;
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @return Customer the static model class
@@ -104,6 +105,19 @@ class Customer extends CActiveRecord
 
 		$criteria=new CDbCriteria;
 
+        if($this->getScenario()=='consumption')
+        {
+            $criteria->alias = 't1';
+            $criteria->join = 'LEFT JOIN {{order}} AS t2 ON t1.customer_id=t2.customer_id';
+            $criteria->join .= ' LEFT JOIN {{currency}} AS t3 ON t2.order_currency_id=t3.currency_id';
+            $criteria->select = array('customer_email', 'customer_create_at', 'SUM(IF(t2.order_grandtotal=1,t2.order_grandtotal, ROUND(t2.order_grandtotal/t3.currency_rate,1))) AS customerConsumption');
+            $criteria->condition = 't2.order_valid=1';
+            $criteria->group = 't2.customer_id';
+            $criteria->order = 'customerConsumption DESC';
+            $criteria->compare('customerConsumption', $this->customerConsumption);
+        }
+        
+
 		$criteria->compare('customer_id',$this->customer_id);
 
 		$criteria->compare('customer_email',$this->customer_email,true);
@@ -131,7 +145,7 @@ class Customer extends CActiveRecord
 		$criteria->compare('customer_last_update',$this->customer_last_update,true);
 
 		$criteria->compare('customer_create_at',$this->customer_create_at,true);
-
+        
 		return new CActiveDataProvider('Customer', array(
 			'criteria'=>$criteria,
 		));

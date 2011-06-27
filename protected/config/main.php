@@ -118,9 +118,9 @@ return array(
                     'class' => 'CFileLogRoute',
                     'levels' => 'error',
                 ),
-            /* array(
+             /*array(
               'class'=>'CWebLogRoute',
-              ), */
+              ),*/
             ),
         ),
     ),

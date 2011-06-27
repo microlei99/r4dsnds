@@ -2,7 +2,7 @@
 
 class UserController extends Controller {
 
-   
+
     public $layout = 'ucenter';
 
     public function filters() {
@@ -56,7 +56,7 @@ class UserController extends Controller {
             }
         }
 
-        $this->render('resetpassword', array('model' => $model));
+        $this->render('resetPassword', array('model' => $model));
     }
 
     public function actionAddress() {
@@ -115,7 +115,7 @@ class UserController extends Controller {
                 else if($edit){
                      unset ($edit);
                      $this->redirect('/checkout');
-                }   
+                }
                 else {
                     $this->redirect(array('address'));
                 }
@@ -172,8 +172,8 @@ class UserController extends Controller {
         }
         $this->redirect(array('order'));
     }
-    
-  
+
+
 
     private function _load_model() {
         $model = Customer::model()->findByPk(Yii::app()->user->getId());

@@ -75,13 +75,6 @@
                 'type' => 'raw',
                 'name' => 'product_last_update',
                 'filter' => false,
-            ),   
-            array(
-                'header' => '统计',
-                'name' => 'stat',
-                'type' => 'raw',
-                'value' => 'CHtml::link("统计","/backend/statistic/product/id/".$data->product_id)',
-                'filter' => false,
             ),
             array(
                 'class' => 'CButtonColumn',

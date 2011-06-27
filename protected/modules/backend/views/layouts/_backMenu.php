@@ -23,7 +23,6 @@
              <li class="level1"><a href="/backend/promotion" class=""><span>促销管理</span></a></li>
              <li class="level1"><a href="/backend/wholesale" class=""><span>批发管理</span></a></li>
              <li class="level1"><a href="/backend/review" class=""><span>评论管理</span></a></li>
-             <li class="level1"><a href="/backend/bundle" class=""><span>产品捆绑</span></a></li>
         </ul>
     </li>
     <li  class="parent level0"> <a href="#"  onclick="return false" class=""><span>客户</span></a>
@@ -65,9 +64,16 @@
                 </ul>
             </li>
 			<li  class="level1"> <a href="/backend/order/hand"><span>订单处理</span></a> </li>
-            <li  class="level1"> <a href="/backend/msg/alert"   class=""><span>通知信息</span></a></li>
             <li  class="level1"> <a href="/backend/msg/search"   class=""><span>搜索监控</span></a></li>
             <li  class="level1"> <a href="/backend/msg/config" class=""><span>参数设置</span></a></li>
         </ul>
     </li>
+
+    <li  class="parent level0"> <a href="#"  onclick="return false" class=""><span>统计</span></a>
+        <ul >
+            <li  class="level1"> <a href="/backend/statistic/order" class=""><span>订单统计</span></a></li>
+            <li  class="level1"> <a href="/backend/statistic/customerConsumption" class=""><span>客户消费统计</span></a></li>
+        </ul>
+    </li>
+
 </ul>

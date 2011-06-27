@@ -43,7 +43,7 @@ class Order extends CActiveRecord
 
     public $customer_name;
     public $customer_email;
-    public $paypal_txnid;
+    public $transaction_id;
 
 	/**
 	 * Returns the static model of the specified AR class.
@@ -78,7 +78,7 @@ class Order extends CActiveRecord
 			array('order_comment', 'length', 'max'=>255),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('customer_email,paypal_txnid,customer_name,order_id, invoice_id, customer_id, order_subtotal, order_trackingtotal,order_grandtotal, order_currency_id, order_payment_id, order_carrier_id, order_address_id, order_ship_id, order_discount_id, order_status, order_valid,order_export,order_qty, order_ip, order_salt, order_comment, order_create_at,order_payment_at', 'safe', 'on'=>'search'),
+			array('customer_email,transaction_id,customer_name,order_id, invoice_id, customer_id, order_subtotal, order_trackingtotal,order_grandtotal, order_currency_id, order_payment_id, order_carrier_id, order_address_id, order_ship_id, order_discount_id, order_status, order_valid,order_export,order_qty, order_ip, order_salt, order_comment, order_create_at,order_payment_at', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -97,6 +97,7 @@ class Order extends CActiveRecord
             'carrier'=>array(self::BELONGS_TO,'Carrier','order_carrier_id'),
             'address'=>array(self::BELONGS_TO,'CustomerAddress','order_address_id'),
             'paypal'=>array(self::HAS_ONE,'PaypalResponse','order_id'),
+            'creditCard'=>array(self::HAS_ONE,'Realypay','realypay_orderid'),
             'ship'=>array(self::HAS_ONE,'OrderShip','ship_order_id'),
 		);
 	}
@@ -139,14 +140,23 @@ class Order extends CActiveRecord
 		// should not be searched.
 
 		$criteria=new CDbCriteria(array(
-            'with'=>array('address','paypal','customer'),
+            'with'=>array('address','paypal','customer','creditCard'),
             'order'=>'t.order_id DESC',
         ));
 
         $criteria->compare('address.customer_name',$this->customer_name,true);
 
-        $criteria->compare('response_txn_id',$this->paypal_txnid,true);
-
+        if($this->order_payment_id==1){
+            $criteria->compare('response_txn_id',$this->transaction_id,true);
+        }
+        else if($this->order_payment_id==2){
+            $criteria->compare('realypay_verifycode', $this->transaction_id,true);
+        }
+        else{
+            $criteria->compare('response_txn_id',$this->transaction_id,true);
+            $criteria->compare('realypay_verifycode', $this->transaction_id,true);
+        }
+        
         $criteria->compare('customer_email', $this->customer_email,true);
 
 		$criteria->compare('order_id',$this->order_id);
@@ -191,7 +201,10 @@ class Order extends CActiveRecord
 
         $criteria->compare('order_payment_at',$this->order_create_at,true);
 
-        $criteria->addCondition('order_status!='.self::AwaitingPayment);
+        if($this->getScenario()=='search'){
+            $criteria->addCondition('order_status!='.self::AwaitingPayment);
+        }
+        
 
 		return new CActiveDataProvider('Order', array(
 			'criteria'=>$criteria,
@@ -274,8 +287,18 @@ class Order extends CActiveRecord
         return '('.Config::item('system', 'order_export_prefix').')';
     }
 
-
-
+    public function getTransaction()
+    {
+        $transaction = '';
+        if($this->order_payment_id==1){//paypal
+            $transaction = $this->paypal->response_txn_id;
+        }
+        else if($this->order_payment_id==2)
+        {//credit card
+            $transaction = $this->creditCard->realypay_transactionid;
+        }
+        return $transaction;
+    }
 
     public function getWeightTotal()
     {
@@ -360,5 +383,13 @@ class Order extends CActiveRecord
         $res = Yii::app()->db->createCommand($sql)->queryScalar();
 
         return round(floatval($res),1);
+    }
+
+    public function OrderStatus()
+    {
+        $paymentStatus = Lookup::items('payment_status');
+        if(array_key_exists($this->order_payment_id,$paymentStatus)){
+            return $paymentStatus[$this->order_status];
+        }
     }
 }

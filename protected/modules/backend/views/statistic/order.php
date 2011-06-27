@@ -2,51 +2,33 @@
     <?php
     $this->widget('TradeGrid', array(
         'dataProvider' => $model->search(),
-        'filter' => $model,
+        'filter'=>$model,
         'htmlOptions' => array(
             'class' => 'hor-scroll',
         ),
         'columns' => array(
             array(
-                'header' => '订单号',
+                'header' => '订单编号',
                 'name' => 'invoice_id',
-                'value'=>'$data->getInvoice()'
+                //'value'=>'$data->getInvoice()',
             ),
             array(
-                'header' => '订单状态',
-                'name' => 'order_status',
-                'type' => 'raw',
-                'value' => 'Lookup::item("payment_status",$data->order_status)',
-                'filter' => Lookup::items("payment_status"),
+                'header'=>'订单状态',
+                'name'=>'order_status',
+                'value'=>'$data->orderStatus()',
+                'filter'=>  Lookup::items('payment_status'),
             ),
             array(
-                'header'=>'客户姓名',
-                'name'=>'customer_name',
-                'value'=>'$data->address->customer_name',
-            ),
-            array(
-                'header' => '客户Email',
-                'name' => 'customer_email',
-                'type' => 'raw',
-                'value' => 'CHtml::link($data->customer->customer_email,"/backend/customer/update/id/".$data->customer_id)',
+                'header'=>'订单总金额',
+                'name'=>'order_grandtotal',
+                'value'=>'$data->currency->currency_symbol.$data->order_grandtotal',
+                'filter'=>false,
             ),
             array(
                 'header'=>'支付类型',
                 'name'=>'order_payment_id',
                 'value'=>'$data->order_payment_id==1?"paypal":"credit card"',
-                'filter'=>array(1=>'paypal',2=>'credit card')
-            ),
-            array(
-                'header'=>'交易号',
-                'name'=>'transaction_id',
-                'value'=>'$data->getTransaction()',
-            ),
-            array(
-                'header' => '订单最终金额',
-                'name' => 'order_grandtotal',
-                'type' => 'raw',
-                'value' => '$data->currency->currency_symbol.$data->order_grandtotal',
-                'filter' => false,
+                'filter'=>false,
             ),
             array(
                 'header' => '运输方式',
@@ -63,8 +45,7 @@
                 'header' => '支付时间',
                 'name' => 'order_payment_at',
                 'value'=>'strtotime($data->order_payment_at)==false?"未支付":$data->order_payment_at',
-                
-                'filter' => false,
+                'filter'=>false
             ),
             array(
                 'class' => 'CButtonColumn',
